@@ -3,5 +3,5 @@ module.exports = {
     siteUrl: "https://www.yourdomain.tld",
     title: "verdon-xyz",
   },
-  plugins: [],
+  plugins: [`gatsby-plugin-postcss`],
 };
