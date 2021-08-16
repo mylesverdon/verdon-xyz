@@ -49,7 +49,7 @@ class AnimatedBoids extends React.Component {
   constructor(props) {
     super(props);
     // Setup values for boids
-    this.numBoids = 200;
+    this.numBoids = 500;
     this.visualRange = 40;
     this.mousePosX = 100;
     this.mousePosY = 100;
@@ -123,9 +123,12 @@ class AnimatedBoids extends React.Component {
   // nudge it back in and reverse its direction.
 
   avoidMouse(boid) {
-    const distance = Math.sqrt(((boid.x - this.mousePosX) ** 2) + ((boid.y - this.mousePosY)**2)); 
-    boid.dx += 100 / (this.mousePosX - boid.x)*distance;
-    boid.dy += 100 / (this.mousePosY - boid.y)*distance;
+    const distance = Math.sqrt(((boid.x - this.mousePosX) ** 2) + ((boid.y - this.mousePosY)**2));
+    const radius = 100;
+    if (distance < radius) {
+      boid.dx -= 100 /  (this.mousePosX - boid.x);
+      boid.dy -= 100 / (this.mousePosY - boid.y);
+    }
     // ! TODO - Got to make the distance work properly (vectorise probs)
   }
 
@@ -182,7 +185,7 @@ class AnimatedBoids extends React.Component {
 
   // Move away from other boids that are too close to avoid colliding
   avoidOthers(boid) {
-    const minDistance = 20; // The distance to stay away from other boids
+    const minDistance = 25; // The distance to stay away from other boids
     const avoidFactor = 0.02; // Adjust velocity by this %
     let moveX = 0;
     let moveY = 0;
