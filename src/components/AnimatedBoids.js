@@ -56,7 +56,6 @@ class AnimatedBoids extends React.Component {
     // Function bindings
     this.handleResize = this.handleResize.bind(this);
     // Event handlers
-    window.addEventListener('resize', this.handleResize);
     this.updateAnimationState = this.updateAnimationState.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.distance = this.distance.bind(this);
@@ -68,12 +67,14 @@ class AnimatedBoids extends React.Component {
     this.limitSpeed = this.limitSpeed.bind(this);
 
     // State init
-    this.state = {  canvasWidth: window.innerWidth, 
-                    canvasHeight: window.innerHeight, 
+    this.state = {  canvasWidth: 100, 
+                    canvasHeight: 100, 
                     boids: []};
   }
 
   componentDidMount() {
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
     for(let i = 0; i<this.numBoids; i++) {
       this.setState(prevState => ({
         boids: [...prevState.boids, { x: Math.random() * (i > this.numBoids/2) ? -10 : this.state.canvasWidth+10,
@@ -84,6 +85,9 @@ class AnimatedBoids extends React.Component {
     }
 
     this.rAF = requestAnimationFrame(this.updateAnimationState);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize',this.handleResize);
   }
 
   updateAnimationState() {
