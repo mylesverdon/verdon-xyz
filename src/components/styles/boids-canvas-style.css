@@ -59,45 +59,10 @@
     
 /*------ MAIN ------------------------------*/
 
-    #home {
-      height: 100%;
-      height: 100vh;
-      width: 100%;
-      width: 100vw;
-      max-height: 100%;
-      max-height: 100vh;
-      max-width: 100%;
-      max-width: 100vw;
-      overflow: hidden;
-      background-color: #222;
-      color: #fafafa;
-      color: rgba(255,255,255,.9);
-      font-family: arial;
-    }
-    
-    #boids-wrapper {
-      position: relative;
-      display: flex;
-      align-items: flex-end;
-      height: 100%;
-      height: 100vh;
-      width: 100%;
-      width: 100vw;
-      max-height: 100%;
-      max-height: 100vh;
-      max-width: 100%;
-      max-width: 100vw;
-      overflow: hidden;
-    }
-    
-    #boids {
-      position: absolute;
-      height: 100%;
-      height: 100vh;
-      width: 100%;
-      width: 100vw;
-      max-height: 100%;
-      max-height: 100vh;
-      max-width: 100%;
-      max-width: 100vw;
-    }
+#boids-wrapper {
+    height: 100%;
+    width: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+}

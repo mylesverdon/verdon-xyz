@@ -1,13 +1,13 @@
 import * as React from "react"
-import '../components/BoidsCanvas';
-import BoidsCanvas from "../components/BoidsCanvas";
+import '../components/AnimatedBoids';
+import AnimatedBoids from "../components/AnimatedBoids";
 
 // markup
 const IndexPage = () => {
   return (
     <>
       <title>Oh, hi there.</title>
-      <BoidsCanvas></BoidsCanvas>
+      <AnimatedBoids />
     </> 
   )
 }

@@ -6,15 +6,17 @@ class BoidsCanvas extends React.Component {
   constructor(props) {
     super(props);
     this.canvasRef = React.createRef();
+
+    this.drawBoid = this.drawBoid.bind(this);
+    this.onSizeChange = this.onSizeChange.bind(this);
   }
 
   componentDidUpdate() {
-
     const { boids } = this.props.boids;
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
+    const width = this.props.canvasWidth;
+    const height = this.props.canvasHeight;
     ctx.clearRect(0, 0, width, height);
 
     // Clear the canvas and redraw all the boids in their current positions
@@ -39,14 +41,23 @@ class BoidsCanvas extends React.Component {
     ctx.fill();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
+  // Called initially and whenever the window resizes to update the canvas
+  // size and width/height variables.
+  onSizeChange(e) {
+    const canvas = this.canvasRef;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    canvas.width = this.width;
+    canvas.height = this.height;
+  }
 
   render() {
-    return <canvas id="boids" width="150" height="300" ref={this.canvasRef} /> ;
+    return <canvas id="boids" width={this.props.canvasWidth} height={this.props.canvasHeight} ref={this.canvasRef} /> ; //! Need to lift the state up
   }
 }
 
 
-class AnimateBoids extends React.Component {
+class AnimatedBoids extends React.Component {
   constructor(props) {
 
     super(props);
@@ -59,7 +70,6 @@ class AnimateBoids extends React.Component {
 
     // Function bindings
     this.updateAnimationState = this.updateAnimationState.bind(this);
-    this.sizeCanvas = this.sizeCanvas.bind(this);
     this.distance = this.distance.bind(this);
     this.keepWithinBounds = this.keepWithinBounds.bind(this);
     this.flyTowardsCenter = this.flyTowardsCenter.bind(this);
@@ -70,39 +80,50 @@ class AnimateBoids extends React.Component {
 
     // Boids initial state
     this.state = {boids: []};
-    for (var i = 0; i < this.numBoids; i += 1) {
-      this.state.boids[i] = {
-        x: Math.random() * this.state.width,
-        y: Math.random() * this.state.height,
-        dx: Math.random() * 10 - 5,
-        dy: Math.random() * 10 - 5,
-        history: [],
-      };
-    }
+    
   }
 
   componentDidMount() {
+    // Setting initial positions for the boids
+    console.log(this.state.boids);
+    for (var i = 0; i < this.numBoids; i += 1) {
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
+        dx: Math.random() * 10 - 5,
+        dy: Math.random() * 10 - 5
+
+      })
+      this.setState((state) => ({
+        boids: [{
+        },
+        {
+          x: Math.random() * this.width,
+          y: Math.random() * this.height,
+          dx: Math.random() * 10 - 5,
+          dy: Math.random() * 10 - 5
+        }]
+        /*state.boids.push({
+          x: Math.random() * this.width,
+          y: Math.random() * this.height,
+          dx: Math.random() * 10 - 5,
+          dy: Math.random() * 10 - 5
+        })*/
+      }));
+    }
+
+    // Starting the animation
     this.rAF = requestAnimationFrame(this.updateAnimationState)
   }
 
 
   updateAnimationState() {
     // Update each boid
-    console.log("Here");
-    for (let boid of this.state.boids) {
-      // Update the velocities according to each rule
-      this.flyTowardsCenter(boid);
-      this.avoidOthers(boid);
-      this.matchVelocity(boid);
-      this.limitSpeed(boid);
-      this.keepWithinBounds(boid);
-
-      // Update the position based on the current velocity
-      boid.x += boid.dx;
-      boid.y += boid.dy;
-      boid.history.push([boid.x, boid.y])
-      boid.history = boid.history.slice(-50);
-    }
+    this.setState((state) => ({
+      boids: state.boids.map(boid => {
+        // Update the velocities according to each rule
+      })
+    }));
+    console.log(this.state.boids);     
 
     // Schedule the next frame
     this.rAF = requestAnimationFrame(this.updateAnimationState);
@@ -125,13 +146,13 @@ class AnimateBoids extends React.Component {
     if (boid.x < margin) {
       boid.dx += turnFactor;
     }
-    if (boid.x > width - margin) {
+    if (boid.x > this.width - margin) {
       boid.dx -= turnFactor
     }
     if (boid.y < margin) {
       boid.dy += turnFactor;
     }
-    if (boid.y > height - margin) {
+    if (boid.y > this.height - margin) {
       boid.dy -= turnFactor;
     }
   }
@@ -145,8 +166,8 @@ class AnimateBoids extends React.Component {
     let centerY = 0;
     let numNeighbors = 0;
 
-    for (let otherBoid of boids) {
-      if (distance(boid, otherBoid) < visualRange) {
+    for (let otherBoid of this.state.boids) {
+      if (this.distance(boid, otherBoid) < this.visualRange) {
         centerX += otherBoid.x;
         centerY += otherBoid.y;
         numNeighbors += 1;
@@ -168,9 +189,9 @@ class AnimateBoids extends React.Component {
     const avoidFactor = 0.05; // Adjust velocity by this %
     let moveX = 0;
     let moveY = 0;
-    for (let otherBoid of boids) {
+    for (let otherBoid of this.state.boids) {
       if (otherBoid !== boid) {
-        if (distance(boid, otherBoid) < minDistance) {
+        if (this.distance(boid, otherBoid) < minDistance) {
           moveX += boid.x - otherBoid.x;
           moveY += boid.y - otherBoid.y;
         }
@@ -190,8 +211,8 @@ class AnimateBoids extends React.Component {
     let avgDY = 0;
     let numNeighbors = 0;
 
-    for (let otherBoid of boids) {
-      if (distance(boid, otherBoid) < visualRange) {
+    for (let otherBoid of this.state.boids) {
+      if (this.distance(boid, otherBoid) < this.visualRange) {
         avgDX += otherBoid.dx;
         avgDY += otherBoid.dy;
         numNeighbors += 1;
@@ -218,8 +239,14 @@ class AnimateBoids extends React.Component {
       boid.dy = (boid.dy / speed) * speedLimit;
     }
   }
-}
 
+  render() {
+    return (
+    <><BoidsCanvas canvasWidth={window.innerWidth} canvasHeight={window.innerHeight} ref={this.canvasRef} boids={this.state.boids}/></> );
+  }
+
+
+} export default AnimatedBoids;
 
 
 
