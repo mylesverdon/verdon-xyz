@@ -36,8 +36,8 @@ class BoidsCanvas extends React.Component {
 
   render() {
     return <canvas id="boids" 
-                  width={window.innerWidth} 
-                  height={window.innerHeight} 
+                  width={this.props.canvasWidth} 
+                  height={this.props.canvasHeight} 
                   ref={this.canvasRef}
                   onMouseMove={this.props.mouseEventHandler}/>
   }
