@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 import './styles/boids-canvas-style.css';
 
 import pointer from '../images/pointer-10.png'
@@ -10,6 +10,7 @@ class BoidsCanvas extends React.Component {
     this.width = this.props.canvasWidth;
     this.height = this.props.canvasHeight;
     this.boidMap = []
+    this.imgRef = React.createRef();
   }
 
   componentDidMount() {
@@ -35,7 +36,7 @@ class BoidsCanvas extends React.Component {
     for(let boid of this.props.boids) {
       ctx.translate(boid.x,boid.y);
       ctx.rotate(-Math.atan2(boid.dx,boid.dy) + Math.PI);
-      ctx.drawImage(pointer,0,0);
+      ctx.drawImage(this.imgRef.current,0,0);
       // Reset current transformation matrix to the identity matrix
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
@@ -46,7 +47,7 @@ class BoidsCanvas extends React.Component {
                   width={this.props.canvasWidth} 
                   height={this.props.canvasHeight} 
                   ref={this.canvasRef}
-                  onMouseMove={this.props.mouseEventHandler}/>
+                  onMouseMove={this.props.mouseEventHandler}><img ref={this.imgRef} src={pointer} visible="false"/></canvas>
   }
 }
 
