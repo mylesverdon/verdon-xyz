@@ -1,6 +1,8 @@
 import * as React from "react"
 import './styles/boids-canvas-style.css';
 
+import pointer from "../images/pointer-10.png"
+
 class BoidsCanvas extends React.Component {
   constructor(props) {
     super(props);
@@ -8,6 +10,8 @@ class BoidsCanvas extends React.Component {
     this.width = this.props.canvasWidth;
     this.height = this.props.canvasHeight;
     this.boidMap = []
+    this.pointerIcon = new Image();
+    this.pointerIcon.src = pointer;
   }
 
   componentDidMount() {
@@ -20,17 +24,22 @@ class BoidsCanvas extends React.Component {
 
   drawCanvas() {
     const canvas = this.canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d',{alpha: false});
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#CCCCCC';
+    ctx.fillStyle = '#222222';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.drawBoids(ctx);
   }
 
   drawBoids(ctx) {
+    //console.log(this.props.boids); // ! Some boids are dissapearing (NaN)
     ctx.fillStyle = '#AAAAAA';
     for(let boid of this.props.boids) {
-      ctx.fillRect(boid.x,boid.y,10,10)
+      ctx.translate(boid.x,boid.y);
+      ctx.rotate(-Math.atan2(boid.dx,boid.dy) + Math.PI);
+      ctx.drawImage(this.pointerIcon,0,0);
+      // Reset current transformation matrix to the identity matrix
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
   }
 
@@ -51,8 +60,8 @@ class AnimatedBoids extends React.Component {
     // Setup values for boids
     this.numBoids = 500;
     this.visualRange = 40;
-    this.mousePosX = 100;
-    this.mousePosY = 100;
+    this.mousePosX = -40;
+    this.mousePosY = -40;
     // Function bindings
     this.handleResize = this.handleResize.bind(this);
     // Event handlers
@@ -63,12 +72,13 @@ class AnimatedBoids extends React.Component {
     this.flyTowardsCenter = this.flyTowardsCenter.bind(this);
     this.avoidOthers = this.avoidOthers.bind(this);
     this.avoidMouse = this.avoidMouse.bind(this);
+    this.followMouse = this.followMouse.bind(this);
     this.matchVelocity = this.matchVelocity.bind(this);
     this.limitSpeed = this.limitSpeed.bind(this);
 
     // State init
-    this.state = {  canvasWidth: 100, 
-                    canvasHeight: 100, 
+    this.state = {  canvasWidth: 1920, 
+                    canvasHeight: 1080, 
                     boids: []};
   }
 
@@ -77,8 +87,8 @@ class AnimatedBoids extends React.Component {
     window.addEventListener('resize', this.handleResize);
     for(let i = 0; i<this.numBoids; i++) {
       this.setState(prevState => ({
-        boids: [...prevState.boids, { x: Math.random() * (i > this.numBoids/2) ? -10 : this.state.canvasWidth+10,
-                                      y: Math.random() * -10,
+        boids: [...prevState.boids, { x: Math.random() * window.innerWidth,
+                                      y: Math.random() * window.innerHeight,
                                       dx: Math.random() * 10 - 5,
                                       dy: Math.random() * 10 - 5 }]
       }));
@@ -98,13 +108,14 @@ class AnimatedBoids extends React.Component {
         this.flyTowardsCenter(boid);
         this.avoidOthers(boid);
         this.matchVelocity(boid);
-        this.avoidMouse(boid);
+        //this.avoidMouse(boid);
+        this.followMouse(boid);
         this.keepWithinBounds(boid);
         this.limitSpeed(boid);
 
         // Update the position based on the current velocity
-        boid.x += boid.dx;
-        boid.y += boid.dy;
+        boid.x = Math.floor(boid.x + boid.dx);
+        boid.y = Math.floor(boid.y + boid.dy);
 
         return boid;
       }})
@@ -129,11 +140,20 @@ class AnimatedBoids extends React.Component {
   avoidMouse(boid) {
     const distance = Math.sqrt(((boid.x - this.mousePosX) ** 2) + ((boid.y - this.mousePosY)**2));
     const radius = 100;
-    if (distance < radius) {
-      boid.dx -= 100 /  (this.mousePosX - boid.x);
-      boid.dy -= 100 / (this.mousePosY - boid.y);
+    if (distance < radius && distance > 0) {
+      boid.dx -= (this.mousePosX - boid.x)/distance;
+      boid.dy -= (this.mousePosY - boid.y)/distance;
     }
-    // ! TODO - Got to make the distance work properly (vectorise probs)
+  }
+  
+  followMouse(boid) {
+    const distance = Math.sqrt(((boid.x - this.mousePosX) ** 2) + ((boid.y - this.mousePosY)**2));
+    const radius = 100;
+    const dMax = 0.2;
+    if (distance > 0) {
+      boid.dx += (this.mousePosX - boid.x) > 0 ? Math.min(dMax,(this.mousePosX - boid.x)/distance) : Math.max(-dMax,(this.mousePosX - boid.x)/distance);
+      boid.dy += (this.mousePosY - boid.y) > 0 ? Math.min(dMax,(this.mousePosY - boid.y)/distance) : Math.max(-dMax,(this.mousePosY - boid.y)/distance);
+    }
   }
 
   distance(boid1, boid2) {
@@ -164,7 +184,7 @@ class AnimatedBoids extends React.Component {
   // Find the center of mass of the other boids and adjust velocity slightly to
   // point towards the center of mass.
   flyTowardsCenter(boid) {
-    const centeringFactor = 0.004; // adjust velocity by this %
+    const centeringFactor = 0.001; // adjust velocity by this %
 
     let centerX = 0;
     let centerY = 0;
@@ -189,16 +209,17 @@ class AnimatedBoids extends React.Component {
 
   // Move away from other boids that are too close to avoid colliding
   avoidOthers(boid) {
-    const minDistance = 25; // The distance to stay away from other boids
-    const avoidFactor = 0.02; // Adjust velocity by this %
+    const targetDistance = 50; // The distance to stay away from other boids
+    const avoidFactor = 0.01; // Adjust velocity by this %
     let moveX = 0;
     let moveY = 0;
     for (let otherBoid of this.state.boids) {
       if (otherBoid !== boid) {
-        if (this.distance(boid, otherBoid) < minDistance) {
-          moveX += boid.x - otherBoid.x;
-          moveY += boid.y - otherBoid.y;
-        }
+        const separation = this.distance(boid, otherBoid);
+        if (separation < targetDistance && separation > 0) {
+          moveX += separation ? 2*(boid.x - otherBoid.x)/separation : Math.random();
+          moveY += separation ? 2*(boid.y - otherBoid.y)/separation : Math.random();
+        } 
       }
     }
 
@@ -235,7 +256,7 @@ class AnimatedBoids extends React.Component {
   // Speed will naturally vary in flocking behavior, but real animals can't go
   // arbitrarily fast.
   limitSpeed(boid) {
-    const speedLimit = 5;
+    const speedLimit = 8;
     const minSpeed = 3;
     const speed = Math.sqrt(boid.dx * boid.dx + boid.dy * boid.dy);
     if (speed > speedLimit) {
