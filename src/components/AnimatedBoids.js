@@ -11,6 +11,8 @@ class BoidsCanvas extends React.Component {
     this.height = this.props.canvasHeight;
     this.boidMap = []
     this.imgRef = React.createRef();
+
+    this.drawBoids = this.drawBoids.bind(this);
   }
 
   componentDidMount() {
@@ -25,7 +27,7 @@ class BoidsCanvas extends React.Component {
     const canvas = this.canvasRef.current;
     const ctx = canvas.getContext('2d',{alpha: false});
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#222222';
+    ctx.fillStyle = this.props.isFollow ? '#222222' : '#DDDDDD';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.drawBoids(ctx);
   }
@@ -36,18 +38,25 @@ class BoidsCanvas extends React.Component {
     for(let boid of this.props.boids) {
       ctx.translate(boid.x,boid.y);
       ctx.rotate(-Math.atan2(boid.dx,boid.dy) + Math.PI);
+      if(!this.props.isFollow) { ctx.filter = 'invert(1)'; }
       ctx.drawImage(this.imgRef.current,0,0);
+      ctx.filter = 'invert(0)';
       // Reset current transformation matrix to the identity matrix
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
+    
   }
 
   render() {
     return <canvas id="boids" 
-                  width={this.props.canvasWidth} 
-                  height={this.props.canvasHeight} 
-                  ref={this.canvasRef}
-                  onMouseMove={this.props.mouseEventHandler}><img ref={this.imgRef} src={pointer} visible="false"/></canvas>
+              width={this.props.canvasWidth} 
+              height={this.props.canvasHeight} 
+              ref={this.canvasRef}
+              onMouseMove={this.props.mouseEventHandler}
+              onClick={this.props.clickHandler}
+              style={{cursor: "pointer"}}>
+                      <img ref={this.imgRef} src={pointer} visible="false"/>
+              </canvas>
   }
 }
 
@@ -61,6 +70,7 @@ class AnimatedBoids extends React.Component {
     this.visualRange = 40;
     this.mousePosX = -40;
     this.mousePosY = -40;
+    this.isFollow = false;
     // Function bindings
     this.handleResize = this.handleResize.bind(this);
     // Event handlers
@@ -74,6 +84,7 @@ class AnimatedBoids extends React.Component {
     this.followMouse = this.followMouse.bind(this);
     this.matchVelocity = this.matchVelocity.bind(this);
     this.limitSpeed = this.limitSpeed.bind(this);
+    this.clickHandler = this.clickHandler.bind(this);
 
     // State init
     this.state = {  canvasWidth: 1920, 
@@ -107,8 +118,11 @@ class AnimatedBoids extends React.Component {
         this.flyTowardsCenter(boid);
         this.avoidOthers(boid);
         this.matchVelocity(boid);
-        this.avoidMouse(boid);
-        this.followMouse(boid);
+        if(this.isFollow) { 
+          this.avoidMouse(boid);
+        } else {
+          this.followMouse(boid); 
+        }
         this.keepWithinBounds(boid);
         this.limitSpeed(boid);
 
@@ -268,13 +282,19 @@ class AnimatedBoids extends React.Component {
   }
 
   // =============================================================
+  clickHandler() {
+    console.log("HERE!");
+    this.isFollow = !this.isFollow
+  }
 
   render() {
     return <div id="boids-wrapper" >
       <BoidsCanvas  canvasWidth={this.state.canvasWidth} 
                     canvasHeight={this.state.canvasHeight} 
                     boids={this.state.boids}
-                    mouseEventHandler={this.handleMouseMove}/>
+                    mouseEventHandler={this.handleMouseMove}
+                    isFollow={this.isFollow}
+                    clickHandler={this.clickHandler}/>
       </div>
   }
 }
