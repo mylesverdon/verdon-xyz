@@ -15,9 +15,13 @@
     "clean": "gatsby clean"
   },
   "dependencies": {
+    "@fontsource/arvo": "^4.5.0",
+    "@fontsource/lato": "^4.5.0",
+    "@fontsource/roboto": "^4.5.0",
     "autoprefixer": "^10.3.1",
     "gatsby": "^3.11.1",
     "gatsby-plugin-postcss": "^4.11.0",
+    "gatsby-plugin-web-font-loader": "^1.0.4",
     "postcss": "^8.3.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

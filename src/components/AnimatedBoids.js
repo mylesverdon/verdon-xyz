@@ -67,11 +67,11 @@ class AnimatedBoids extends React.Component {
   constructor(props) {
     super(props);
     // Setup values for boids
-    this.numBoids = 300;
-    this.visualRange = 60;
+    this.numBoids = 60;
+    this.visualRange = 100;
     this.mousePosX = -40;
     this.mousePosY = -40;
-    this.isFollow = false;
+    this.isFollow = true;
     // Function bindings
     this.handleResize = this.handleResize.bind(this);
     // Event handlers
@@ -94,7 +94,10 @@ class AnimatedBoids extends React.Component {
   }
 
   componentDidMount() {
+    
     this.handleResize();
+    this.mousePosX = this.state.canvasWidth / 2;
+    this.mousePosY = this.state.canvasHeight / 2;
     window.addEventListener('resize', this.handleResize);
     for(let i = 0; i<this.numBoids; i++) {
       this.setState(prevState => ({
