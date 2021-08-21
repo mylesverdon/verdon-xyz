@@ -1,15 +1,14 @@
 import * as React from "react"
 import '../components/AnimatedBoids';
-import AnimatedBoids from "../components/AnimatedBoids";
+import Landing from "../components/Landing";
 
 // markup
 const IndexPage = () => {
-  return (
-    <>
-      <title>Oh, hi there.</title>
-      <AnimatedBoids />
-    </> 
-  )
+    return ( <>
+        <title>Myles Verdon</title>
+        <Landing />
+        </> 
+    )
 }
 
-export default IndexPage
+export default IndexPage;

@@ -6,16 +6,21 @@ import pointer from '../images/pointer-10.png'
 class BoidsCanvas extends React.Component {
   constructor(props) {
     super(props);
+    this.ctx = null;
+    this.canvas = null;
     this.canvasRef = React.createRef();
     this.width = this.props.canvasWidth;
     this.height = this.props.canvasHeight;
     this.boidMap = []
     this.imgRef = React.createRef();
 
+    this.drawCanvas = this.drawCanvas.bind(this);
     this.drawBoids = this.drawBoids.bind(this);
   }
 
   componentDidMount() {
+    this.canvas = this.canvasRef.current;
+    this.ctx = this.canvas.getContext('2d');
     this.drawCanvas();
   }
 
@@ -24,23 +29,17 @@ class BoidsCanvas extends React.Component {
   }
 
   drawCanvas() {
-    const canvas = this.canvasRef.current;
-    const ctx = canvas.getContext('2d',{alpha: false});
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = this.props.isFollow ? '#222222' : '#DDDDDD';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    this.drawBoids(ctx);
+    this.ctx.globalAlpha = 0.7;
+    this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+    this.ctx.beginPath();
+    this.drawBoids(this.ctx);
   }
 
   drawBoids(ctx) {
-    //console.log(this.props.boids); // ! Some boids are dissapearing (NaN)
-    ctx.fillStyle = '#AAAAAA';
     for(let boid of this.props.boids) {
       ctx.translate(boid.x,boid.y);
       ctx.rotate(-Math.atan2(boid.dx,boid.dy) + Math.PI);
-      if(!this.props.isFollow) { ctx.filter = 'invert(1)'; }
       ctx.drawImage(this.imgRef.current,0,0);
-      ctx.filter = 'invert(0)';
       // Reset current transformation matrix to the identity matrix
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
@@ -48,15 +47,17 @@ class BoidsCanvas extends React.Component {
   }
 
   render() {
-    return <canvas id="boids" 
+    return <>
+            <img ref={this.imgRef} src={pointer} hidden={true} alt="cursor"/>
+            <canvas id="boids" 
               width={this.props.canvasWidth} 
               height={this.props.canvasHeight} 
               ref={this.canvasRef}
               onMouseMove={this.props.mouseEventHandler}
               onClick={this.props.clickHandler}
               style={{cursor: "pointer"}}>
-                      <img ref={this.imgRef} src={pointer} visible="false"/>
               </canvas>
+              </>
   }
 }
 
@@ -66,8 +67,8 @@ class AnimatedBoids extends React.Component {
   constructor(props) {
     super(props);
     // Setup values for boids
-    this.numBoids = 500;
-    this.visualRange = 40;
+    this.numBoids = 300;
+    this.visualRange = 60;
     this.mousePosX = -40;
     this.mousePosY = -40;
     this.isFollow = false;
@@ -112,18 +113,18 @@ class AnimatedBoids extends React.Component {
 
   updateAnimationState() {
     this.setState(prevState => ({
-      boids: prevState.boids.map(_boid => {{
+      boids: prevState.boids.map(_boid => {
         let boid = Object.assign({}, _boid);
         
         this.flyTowardsCenter(boid);
         this.avoidOthers(boid);
         this.matchVelocity(boid);
-        if(this.isFollow) { 
+        if(!this.isFollow) { 
           this.avoidMouse(boid);
+          this.keepWithinBounds(boid);
         } else {
           this.followMouse(boid); 
         }
-        this.keepWithinBounds(boid);
         this.limitSpeed(boid);
 
         // Update the position based on the current velocity
@@ -131,7 +132,7 @@ class AnimatedBoids extends React.Component {
         boid.y = Math.floor(boid.y + boid.dy);
 
         return boid;
-      }})
+      })
     }));
     this.rAF = requestAnimationFrame(this.updateAnimationState);
   }
@@ -161,7 +162,6 @@ class AnimatedBoids extends React.Component {
   
   followMouse(boid) {
     const distance = Math.sqrt(((boid.x - this.mousePosX) ** 2) + ((boid.y - this.mousePosY)**2));
-    const radius = 100;
     const dMax = 0.2;
     if (distance > 0) {
       boid.dx += (this.mousePosX - boid.x) > 0 ? Math.min(dMax,(this.mousePosX - boid.x)/distance) : Math.max(-dMax,(this.mousePosX - boid.x)/distance);
@@ -177,20 +177,16 @@ class AnimatedBoids extends React.Component {
   }
 
   keepWithinBounds(boid) {
-    const margin = 200;
-    const turnFactor = 0.1;
-
-    if (boid.x < margin) {
-      boid.dx += turnFactor;
+    const outOfBoundsRange = 200;
+    if (boid.x < -outOfBoundsRange) {
+      boid.x = this.state.canvasWidth + boid.x + outOfBoundsRange;
+    } else if (boid.x > this.state.canvasWidth + outOfBoundsRange) {
+      boid.x = boid.x - this.state.canvasWidth - outOfBoundsRange;
     }
-    if (boid.x > this.state.canvasWidth - margin) {
-      boid.dx -= turnFactor
-    }
-    if (boid.y < margin) {
-      boid.dy += turnFactor;
-    }
-    if (boid.y > this.state.canvasHeight - margin) {
-      boid.dy -= turnFactor;
+    if (boid.y < -outOfBoundsRange) {
+      boid.y = this.state.canvasHeight + boid.y + outOfBoundsRange;
+    } else if (boid.y > this.state.canvasHeight + outOfBoundsRange) {
+      boid.y = boid.y - this.state.canvasHeight - outOfBoundsRange;
     }
   }
 
@@ -243,7 +239,7 @@ class AnimatedBoids extends React.Component {
   // Find the average velocity (speed and direction) of the other boids and
   // adjust velocity slightly to match.
   matchVelocity(boid) {
-    const matchingFactor = 0.05; // Adjust by this % of average velocity
+    const matchingFactor = 0.02; // Adjust by this % of average velocity
 
     let avgDX = 0;
     let avgDY = 0;
@@ -269,7 +265,7 @@ class AnimatedBoids extends React.Component {
   // Speed will naturally vary in flocking behavior, but real animals can't go
   // arbitrarily fast.
   limitSpeed(boid) {
-    const speedLimit = 8;
+    const speedLimit = 7;
     const minSpeed = 3;
     const speed = Math.sqrt(boid.dx * boid.dx + boid.dy * boid.dy);
     if (speed > speedLimit) {
@@ -283,8 +279,8 @@ class AnimatedBoids extends React.Component {
 
   // =============================================================
   clickHandler() {
-    console.log("HERE!");
-    this.isFollow = !this.isFollow
+    this.isFollow = !this.isFollow;
+    this.props.changeIsFollow(this.isFollow);
   }
 
   render() {
