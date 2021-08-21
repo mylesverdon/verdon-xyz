@@ -1,0 +1,116 @@
+/* ============= BACKGROUND ========== */
+
+.landing-background {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+    /*background: linear-gradient(-45deg, #23D5AB, #23A6D5,#E73C7E,#EE7752  );*/
+    background-size: 400% 400%;
+}
+
+.initial-follow {
+    background-position: 0% 0%;
+}
+
+.not-follow {
+    -webkit-animation: Gradient-Forward 2s ease forwards;
+    -moz-animation: Gradient-Forward 2s ease forwards;
+    animation: Gradient-Forward 2s ease forwards;
+}
+.is-follow {
+    -webkit-animation: Gradient-Reverse 2s ease forwards;
+    -moz-animation: Gradient-Reverse 2s ease forwards ;
+    animation: Gradient-Reverse 2s ease forwards;
+}
+
+@-webkit-keyframes Gradient-Forward {
+    from { background-position: 0% 0% }
+    to { background-position: 100% 100% }
+}
+@-moz-keyframes Gradient-Forward {
+    from { background-position: 0% 0% }
+    to { background-position: 100% 100% }
+}
+@keyframes Gradient-Forward {
+    from { background-position: 0% 0% }
+    to { background-position: 100% 100% }
+}
+
+
+@-webkit-keyframes Gradient-Reverse {
+    from { background-position: 100% 100% }
+    to { background-position: 0% 0% }
+}
+@-moz-keyframes Gradient-Reverse {
+    from { background-position: 100% 100% }
+    to { background-position: 0% 0% }
+}
+@keyframes Gradient-Reverse {
+    from { background-position: 100% 100% }
+    to { background-position: 0% 0% }
+}
+
+
+
+/* ============== TEXT ================= */
+
+
+#about {
+    position: absolute;
+    background-color: #FFFFFFEE;
+    padding: 1.5vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Roboto", sans-serif;
+    box-shadow: 3px 2px 5px black;
+    text-align: center;
+    width: 80%;
+}
+
+#name { font-size: 2.2rem; font-weight: bolder; text-align: center;}
+#details { font-size: 0.8rem; font-weight: bold; text-align: center;}
+#blurb { margin: 2% 0 5% 0; font-size: small;}
+
+#picture {
+    width: 40%; 
+    padding: 0 5%; 
+    margin-left: 5%;
+    margin-bottom: 2%;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+
+@media only screen and (min-width: 600px) {
+    /* For tablets: */
+    #about { width: 40vw;}
+    #name {font-size: 2rem;}
+    #details {font-size: 1rem;}
+}
+
+@media only screen and (min-width: 900px) {
+    /* For desktop: */
+    #about { 
+        width: 32vw;
+    }
+    #name {font-size: 2rem; font-size: 3em;}
+    #details {font-size: 1rem; font-size: large;}
+    #blurb {
+        font-size: medium;
+        width: 55%; 
+        text-align: left;
+        float: left;
+    }
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+a:visited {
+    color: lightgrey;
+}

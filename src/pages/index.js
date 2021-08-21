@@ -1,6 +1,5 @@
 import * as React from "react"
-import '../components/AnimatedBoids';
-import Landing from "../components/Landing";
+import "../components/Landing";
 
 // markup
 const IndexPage = () => {
