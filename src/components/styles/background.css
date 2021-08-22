@@ -114,3 +114,13 @@ a {
 a:visited {
     color: lightgrey;
 }
+
+#click {
+    position: absolute;
+    font-family: "Roboto", sans-serif;
+    bottom: 1vh;
+    color: #FFFFFFAA;
+    text-align: center;
+    width: 100%;
+    text-transform: uppercase;
+}

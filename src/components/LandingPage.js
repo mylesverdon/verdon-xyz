@@ -9,7 +9,7 @@ import resume from '../files/resume.pdf'
 class LandingPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { styleName: "initial-follow"};
+        this.state = { styleName: "initial-follow", isFollow: true};
 
         this.landingRef = React.createRef();
 
@@ -18,9 +18,9 @@ class LandingPage extends React.Component {
 
     changeIsFollow(following) {
         if(following) {
-            this.setState({styleName: "is-follow"});
+            this.setState({styleName: "is-follow", isFollow: true});
         } else {
-            this.setState({styleName: "not-follow"});
+            this.setState({styleName: "not-follow", isFollow: false});
         }
     }
 
@@ -40,6 +40,7 @@ class LandingPage extends React.Component {
                         <div id="picture"><img src={kayakingPic} style={{maxWidth: "100%", borderRadius: "50%"}} alt="Myles Kayaking in Cornwall"/></div>
                         <div style={{color: "lightgrey"}}><a href="https://www.linkedin.com/in/mylesverdon/" target="_blank">LinkedIn</a> | <a href={resume} target="_blank">Resume</a></div>
                     </div>
+                    <div id="click">Click anywhere!<br/>{this.state.isFollow ? "Following mouse" : "Avoiding mouse"}</div>
                 </div>);
     }
 }
