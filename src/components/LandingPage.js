@@ -40,7 +40,7 @@ class LandingPage extends React.Component {
                         <div id="picture"><img src={kayakingPic} style={{maxWidth: "100%", borderRadius: "50%"}} alt="Myles Kayaking in Cornwall"/></div>
                         <div style={{color: "lightgrey"}}><a href="https://www.linkedin.com/in/mylesverdon/" target="_blank">LinkedIn</a> | <a href={resume} target="_blank">Resume</a></div>
                     </div>
-                    <div id="click">Click anywhere!<br/>{this.state.isFollow ? "Following mouse" : "Avoiding mouse"}</div>
+                    <div id="click">Click/press!<br/>{this.state.isFollow ? "Following mouse" : "Avoiding mouse"}</div>
                 </div>);
     }
 }

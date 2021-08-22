@@ -32,6 +32,9 @@ class BoidsCanvas extends React.Component {
     this.ctx.globalAlpha = 0.7;
     this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
     this.ctx.beginPath();
+    this.ctx.arc(this.props.mousePos.x,this.props.mousePos.y,20,0,2*Math.PI)
+    this.ctx.fillStyle = "#FFFFFF";
+    this.ctx.fill();
     this.drawBoids(this.ctx);
   }
 
@@ -55,7 +58,7 @@ class BoidsCanvas extends React.Component {
               ref={this.canvasRef}
               onMouseMove={this.props.mouseEventHandler}
               onClick={this.props.clickHandler}
-              style={{cursor: "pointer"}}>
+              style={{cursor: "none"}}>
               </canvas>
               </>
   }
@@ -293,7 +296,8 @@ class AnimatedBoids extends React.Component {
                     boids={this.state.boids}
                     mouseEventHandler={this.handleMouseMove}
                     isFollow={this.isFollow}
-                    clickHandler={this.clickHandler}/>
+                    clickHandler={this.clickHandler}
+                    mousePos={{x: this.mousePosX, y: this.mousePosY}}/>
       </div>
   }
 }
