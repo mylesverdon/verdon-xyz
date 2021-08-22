@@ -6,7 +6,7 @@ import "@fontsource/roboto"
 import kayakingPic from '../images/myles-kayaking.jpg'
 import resume from '../files/resume.pdf'
 
-class Landing extends React.Component {
+class LandingPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { styleName: "initial-follow"};
@@ -44,4 +44,4 @@ class Landing extends React.Component {
     }
 }
 
-export default Landing;
+export default LandingPage;

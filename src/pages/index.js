@@ -1,11 +1,11 @@
 import * as React from "react"
-import "../components/Landing";
+import Landing from "../components/LandingPage";
 
 // markup
 const IndexPage = () => {
     return ( <>
-        <title>Myles Verdon</title>
-        <Landing />
+            <title>Myles Verdon</title>
+            <Landing />
         </> 
     )
 }
