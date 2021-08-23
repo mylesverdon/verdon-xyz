@@ -8,6 +8,7 @@
     background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
     /*background: linear-gradient(-45deg, #23D5AB, #23A6D5,#E73C7E,#EE7752  );*/
     background-size: 400% 400%;
+    position:absolute;
 }
 
 .initial-follow {
@@ -61,6 +62,7 @@
     position: absolute;
     background-color: #FFFFFFEE;
     padding: 1.5vw;
+    padding-bottom: 4vh; 
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -83,12 +85,23 @@
     display: inline-block;
 }
 
+#links {
+    position: absolute;
+    color: #FFFFFFAA;
+    font-family: "Roboto", sans-serif;
+    text-align: center;
+    font-size: large;
+    z-index: 2;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%)
+}
 
 @media only screen and (min-width: 600px) {
     /* For tablets: */
-    #about { width: 40vw;}
-    #name {font-size: 2rem;}
-    #details {font-size: 1rem;}
+    #about { width: 40vw; }
+    #name { font-size: 2rem; }
+    #details { font-size: 1rem; }
 }
 
 @media only screen and (min-width: 900px) {
@@ -109,6 +122,7 @@
 a {
     color: black;
     text-decoration: none;
+    z-index: 2;
 }
 
 a:visited {
@@ -123,4 +137,11 @@ a:visited {
     text-align: center;
     width: 100%;
     text-transform: uppercase;
+}
+
+
+
+canvas {
+    position: absolute;
+    z-index: 1;
 }

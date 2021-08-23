@@ -26,9 +26,7 @@ class LandingPage extends React.Component {
 
     render() {
         return (<div id="landing">
-                    <div className={`landing-background ${this.state.styleName}`} isfollow={this.isFollow} ref={this.landingRef}>
-                        <AnimatedBoids changeIsFollow={this.changeIsFollow}/>
-                    </div>
+                    <div className={`landing-background ${this.state.styleName}`} isfollow={this.isFollow} ref={this.landingRef}/>
 
                     <div id="about">
                         <span id="name">MYLES VERDON</span><br/>
@@ -38,9 +36,11 @@ class LandingPage extends React.Component {
                             I have aspirations to change the world, and I always strive to find opportunities to best support that dream.
                         </p>
                         <div id="picture"><img src={kayakingPic} style={{maxWidth: "100%", borderRadius: "50%"}} alt="Myles Kayaking in Cornwall"/></div>
-                        <div style={{color: "lightgrey"}}><a href="https://www.linkedin.com/in/mylesverdon/" target="_blank">LinkedIn</a> | <a href={resume} target="_blank">Resume</a></div>
                     </div>
+                    <div id="links"><a href="https://www.linkedin.com/in/mylesverdon/" target="_blank">LinkedIn</a> | <a href={resume} target="_blank">Resume</a></div>
                     <div id="click">Click/press!<br/>{this.state.isFollow ? "Following mouse" : "Avoiding mouse"}</div>
+                    <AnimatedBoids changeIsFollow={this.changeIsFollow}/>
+                    
                 </div>);
     }
 }
