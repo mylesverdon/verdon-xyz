@@ -92,7 +92,7 @@
     text-align: center;
     font-size: large;
     z-index: 2;
-    bottom: 5%;
+    bottom: 2%;
     left: 50%;
     transform: translateX(-50%)
 }
@@ -104,7 +104,7 @@
     #details { font-size: 1rem; }
 }
 
-@media only screen and (min-width: 900px) {
+@media only screen and (min-width: 1025px) {
     /* For desktop: */
     #about { 
         width: 32vw;
@@ -132,7 +132,7 @@ a:visited {
 #click {
     position: absolute;
     font-family: "Roboto", sans-serif;
-    bottom: 1vh;
+    top: 1vh;
     color: #FFFFFFAA;
     text-align: center;
     width: 100%;
@@ -143,5 +143,8 @@ a:visited {
 
 canvas {
     position: absolute;
+    width:100vw;
+    height: 100vh;
+
     z-index: 1;
 }

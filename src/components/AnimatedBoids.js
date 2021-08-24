@@ -16,13 +16,29 @@ class BoidsCanvas extends React.Component {
 
     this.drawCanvas = this.drawCanvas.bind(this);
     this.drawBoids = this.drawBoids.bind(this);
+    this.handleTouch = this.handleTouch.bind(this);
   }
+  
 
   componentDidMount() {
     this.canvas = this.canvasRef.current;
     this.ctx = this.canvas.getContext('2d');
+      
+    //this.canvas.addEventListener("touchstart", this.handleTouch, false);
+    //this.canvas.addEventListener("touchmove", this.handleTouch, false);
+
     this.drawCanvas();
   }
+
+
+  handleTouch(evt) { // Dealing with touchscreen input 
+    evt.preventDefault();
+    const mousePosX = evt.changedTouches[0].pageX
+    const mousePosY = evt.changedTouches[0].pageY
+    console.log()
+    this.props.touchEventHandler({mousePosX, mousePosY})
+  }
+
 
   componentDidUpdate() {
     this.drawCanvas();
@@ -80,6 +96,7 @@ class AnimatedBoids extends React.Component {
     // Event handlers
     this.updateAnimationState = this.updateAnimationState.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleTouchMove = this.handleTouchMove.bind(this);
     this.distance = this.distance.bind(this);
     this.keepWithinBounds = this.keepWithinBounds.bind(this);
     this.flyTowardsCenter = this.flyTowardsCenter.bind(this);
@@ -146,6 +163,11 @@ class AnimatedBoids extends React.Component {
   handleResize() {
     this.setState({canvasHeight: window.innerHeight});
     this.setState({canvasWidth: window.innerWidth});
+  }
+
+  handleTouchMove(mousePos) {
+    this.mousePosX = mousePos.x
+    this.mousePosX = mousePos.y
   }
 
   handleMouseMove({nativeEvent}) {
@@ -295,6 +317,7 @@ class AnimatedBoids extends React.Component {
                     canvasHeight={this.state.canvasHeight} 
                     boids={this.state.boids}
                     mouseEventHandler={this.handleMouseMove}
+                    touchEventHandler={this.handleTouchMove}
                     isFollow={this.isFollow}
                     clickHandler={this.clickHandler}
                     mousePos={{x: this.mousePosX, y: this.mousePosY}}/>
