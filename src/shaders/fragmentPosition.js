@@ -13,7 +13,7 @@ void main()	{
     vec3 position = tmpPos.xyz;
     vec3 velocity = texture2D( velocityTexture, uv).xyz;
 
-    gl_FragColor = vec4( position + velocity*0.01, 1.0 );
+    gl_FragColor = vec4( position + velocity*0.03, 1.0 );
 
 }
 
