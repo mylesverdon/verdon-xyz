@@ -2,12 +2,12 @@
 
 .name {
     position: absolute;
-    bottom: 30%;
+    bottom: 15%;
     width: 100vw;
     display: grid;
     justify-content: center;
     font-size: 2em;
-    color: lightgrey;
+    color: grey;
     font-family: 'Courier Prime', monospace;
     text-align: center;
 }

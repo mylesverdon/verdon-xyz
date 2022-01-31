@@ -8,7 +8,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import edgeExtraction from './models/EdgeExtraction'
 
 /* @ts-ignore */
-import hand from './models/hand.obj';
+import hand from './models/hand_v2.obj';
 import positionShader from "./shaders/fragmentPosition.js";
 import velocityShader from "./shaders/fragmentVelocity.js";
 import vertex from "./shaders/vertex.js";
@@ -42,8 +42,8 @@ const App = () => {
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         var renderer = new THREE.WebGLRenderer();
-        camera.position.z = 10; // Move camera back a lil
-        camera.position.y = -2;
+        camera.position.z = -15; // Move camera back a lil
+        camera.rotateY(Math.PI);
 
         const light = new THREE.PointLight(0x00AAAA);
         const ambLight = new THREE.AmbientLight(0xFF0000, 0.2);
@@ -107,16 +107,16 @@ const App = () => {
             velocityVariable.material.uniforms['edgeEnd'] = { value: dtEdgeEnds };
             */
 
-            edges.scale(0.1, 0.1, 0.1);
-            edges.rotateY(Math.PI-0.5);
-            edges.rotateX(0.3);
-            edges.rotateZ(0.55);
+            // edges.scale(0.1, 0.1, 0.1);
+            // edges.rotateY(Math.PI-0.5);
+            // edges.rotateX(0.3);
+            // edges.rotateZ(0.55);
 
-            edges.setDrawRange(0,600);
+            const linesShown = 6000; 
+            let counter = linesShown;
+            edges.setDrawRange(0,linesShown);
             const lines = new THREE.LineSegments(edges);
             scene.add(lines);
-            const linesShown = 3000; 
-            let counter = linesShown;
             const numEdges = edges.attributes.position.count;
             setInterval(() => {
                 counter = counter >= numEdges ? 0 + counter%numEdges : counter;
@@ -213,7 +213,7 @@ const App = () => {
 
     return (<div>
             <div className='three-canvas' ref={mountRef}/>
-            <div className='name'>WIP</div>
+            <div className='name'>Come back soon</div>
         </div>); // Return div containing three canvas
 }
 
