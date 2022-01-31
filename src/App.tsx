@@ -27,12 +27,12 @@ const App = () => {
 
     const bloomParams = {
         exposure: 1,
-        bloomStrength: 1.5,
+        bloomStrength: 0.7,
         bloomThreshold: 0,
         bloomRadius: 1
     };
 
-    const [ edgeData, setEdgeData ] = useState([]);
+    //const [ edgeData, setEdgeData ] = useState([]);
 
     useLayoutEffect(() => {
         let velocityVariable: any, positionVariable: any;
@@ -42,13 +42,14 @@ const App = () => {
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         var renderer = new THREE.WebGLRenderer();
-        camera.position.z = 5; // Move camera back a lil
+        camera.position.z = 10; // Move camera back a lil
+        camera.position.y = -2;
 
         const light = new THREE.PointLight(0x00AAAA);
         const ambLight = new THREE.AmbientLight(0xFF0000, 0.2);
         scene.add(light, ambLight);
 
-        new OrbitControls(camera, renderer.domElement);
+        //new OrbitControls(camera, renderer.domElement);
         // Set renderer size and add to react div
         renderer.setSize(window.innerWidth, window.innerHeight);
         mountRef.current.appendChild(renderer.domElement);
@@ -79,26 +80,49 @@ const App = () => {
         positionVariable.material.uniforms['delta'] = { value: 0 };
         velocityVariable.material.uniforms['time'] = { value: 0 };
         velocityVariable.material.uniforms['delta'] = { value: 0 };
-        velocityVariable.material.uniforms['edgeGeometry'] = { value: 0 };
-        velocityVariable.material.uniforms['delta'] = { value: 0 };
+        velocityVariable.material.uniforms['edgeStart'] = { value: 0 };
+        velocityVariable.material.uniforms['edgeEnd'] = { value: 0 };
 
 
         // Load object(s)
-        let dtEdges: THREE.DataTexture;
+        let dtEdgeStarts, dtEdgeEnds: THREE.DataTexture;
         edgeExtraction(hand).then((edges) => {
-            const data = new Float32Array(edges.attributes.position.array);
-            dtEdges = new THREE.DataTexture(data, WIDTH, WIDTH);
-            edges.scale(0.1, 0.1, 0.1);
-            let edgeLines = new THREE.LineSegments(edges);
-            scene.add(edgeLines);
+            const startData = new Float32Array(dtVelocity.image.data.length / 2);
+            const endData = new Float32Array(dtVelocity.image.data.length / 2);
+            /*
+            let edgeData = edges.attributes.position.array;
+            let count = edgeData.length;
+            for ( let i = 0; i < count/8; i+=8) { // Divide/increment by 8 because 2 in a pair and 4 in a vertex
+                
+                const j = (i+7 > edgeData.length) ? 0 : i % edgeData.length
 
-            let numEdges = edges.attributes.position.count;
-            let counter = 0;
+                [startData[j], startData[j+1], startData[j+3], startData[j+4]] = [edgeData[j],edgeData[j+1],edgeData[j+2],edgeData[j+3]];
+                [endData[j], endData[j+1], endData[j+3], endData[j+4]] = [edgeData[j+4],edgeData[j+5],edgeData[j+6],edgeData[j+7]];
+            }
+
+            dtEdgeStarts = new THREE.DataTexture(startData, WIDTH, WIDTH);
+            dtEdgeEnds = new THREE.DataTexture(endData, WIDTH, WIDTH);
+
+            velocityVariable.material.uniforms['edgeStart'] = { value: dtEdgeStarts };
+            velocityVariable.material.uniforms['edgeEnd'] = { value: dtEdgeEnds };
+            */
+
+            edges.scale(0.1, 0.1, 0.1);
+            edges.rotateY(Math.PI-0.5);
+            edges.rotateX(0.3);
+            edges.rotateZ(0.55);
+
+            edges.setDrawRange(0,600);
+            const lines = new THREE.LineSegments(edges);
+            scene.add(lines);
+            const linesShown = 3000; 
+            let counter = linesShown;
+            const numEdges = edges.attributes.position.count;
             setInterval(() => {
-                counter = counter >= numEdges ? 0 : counter;
-                edges.setDrawRange(counter,600);
-                counter += 600;
-            }, 100);
+                counter = counter >= numEdges ? 0 + counter%numEdges : counter;
+                edges.setDrawRange(counter,linesShown);
+                counter += linesShown;
+            }, 150); // Fun line drawing stuff */ 
         });
         
         
@@ -130,7 +154,7 @@ const App = () => {
         geometry.setAttribute('reference', new THREE.BufferAttribute(reference, 3));
 
         const points = new THREE.Points(geometry, material);
-        scene.add(points);
+        //scene.add(points);
 
 
         // Pos processing
@@ -185,7 +209,12 @@ const App = () => {
 
     }, []); // Run effect once with []
 
-    return (<div ref={mountRef}></div>); // Return div containing three canvas
+   
+
+    return (<div>
+            <div className='three-canvas' ref={mountRef}/>
+            <div className='name'>WIP</div>
+        </div>); // Return div containing three canvas
 }
 
 export default App;

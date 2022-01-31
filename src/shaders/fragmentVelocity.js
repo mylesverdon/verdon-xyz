@@ -3,7 +3,8 @@ export default
 
 uniform float time;
 uniform float delta;
-
+uniform sampler2D edgeStart;
+uniform sampler2D edgeEnd;
 
 const float separationDistance = 1.; // 20
 const float alignmentDistance = 2.; // 40
@@ -23,16 +24,19 @@ float rand( vec2 co ){
 
 void main()	{
 
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec3 position = texture2D( positionTexture, uv ).xyz;
+    vec3 velocity = texture2D( velocityTexture, uv ).xyz;
+
+    
+
+    /* 
+    
     zoneRadius = separationDistance + alignmentDistance + cohesionDistance;
     separationThresh = separationDistance / zoneRadius;
     alignmentThresh = ( separationDistance + alignmentDistance ) / zoneRadius;
     
     zoneRadiusSq = zoneRadius * zoneRadius;
-
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec3 position = texture2D( positionTexture, uv ).xyz;
-    vec3 velocity = texture2D( velocityTexture, uv ).xyz;
-
     vec3 targetPos, targetVel, targetDir;
     float targetDist, targetDistSq, percent, factor;
     vec3 selfPos = texture2D(positionTexture, uv).xyz;
@@ -101,7 +105,7 @@ void main()	{
     }
     if ( length(velocity) > 2.) {
         velocity = normalize(velocity) * 2.;
-    }
+    } */
 
 
     gl_FragColor = vec4(velocity, 1.);
