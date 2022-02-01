@@ -213,7 +213,7 @@ const App = () => {
 
     return (<div>
             <div className='three-canvas' ref={mountRef}/>
-            <div className='name'>under active development</div>
+            <div className='name'>under active construction</div>
         </div>); // Return div containing three canvas
 }
 
