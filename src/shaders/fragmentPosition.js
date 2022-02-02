@@ -5,15 +5,15 @@ export default
 
 uniform float time;
 uniform float delta;
+uniform sampler2D edgeStart;
 
 void main()	{
 
     vec2 uv = gl_FragCoord.xy / resolution.xy;
-    vec4 tmpPos = texture2D( positionTexture, uv );
-    vec3 position = tmpPos.xyz;
+    vec3 position = texture2D( edgeStart, uv ).xyz;
     vec3 velocity = texture2D( velocityTexture, uv).xyz;
 
-    gl_FragColor = vec4( position + velocity*0.03, 1.0 );
+    gl_FragColor = vec4( position, 1.0 );
 
 }
 
