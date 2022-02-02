@@ -32,6 +32,13 @@ const App = () => {
         bloomRadius: 1
     };
 
+	let lines: THREE.LineSegments;
+
+	// on mouse move:
+	function mouseMoved(e: any) {
+		lines.rotation.y = (e.pageX - window.innerWidth/2) / 1400;
+		lines.rotation.x = -(100 + e.pageY - window.innerHeight/2) / 1000;
+	}
     //const [ edgeData, setEdgeData ] = useState([]);
 
     useLayoutEffect(() => {
@@ -87,44 +94,20 @@ const App = () => {
         // Load object(s)
         let dtEdgeStarts, dtEdgeEnds: THREE.DataTexture;
         edgeExtraction(hand).then((edges) => {
-            const startData = new Float32Array(dtVelocity.image.data.length / 2);
-            const endData = new Float32Array(dtVelocity.image.data.length / 2);
-            /*
-            let edgeData = edges.attributes.position.array;
-            let count = edgeData.length;
-            for ( let i = 0; i < count/8; i+=8) { // Divide/increment by 8 because 2 in a pair and 4 in a vertex
-                
-                const j = (i+7 > edgeData.length) ? 0 : i % edgeData.length
-
-                [startData[j], startData[j+1], startData[j+3], startData[j+4]] = [edgeData[j],edgeData[j+1],edgeData[j+2],edgeData[j+3]];
-                [endData[j], endData[j+1], endData[j+3], endData[j+4]] = [edgeData[j+4],edgeData[j+5],edgeData[j+6],edgeData[j+7]];
-            }
-
-            dtEdgeStarts = new THREE.DataTexture(startData, WIDTH, WIDTH);
-            dtEdgeEnds = new THREE.DataTexture(endData, WIDTH, WIDTH);
-
-            velocityVariable.material.uniforms['edgeStart'] = { value: dtEdgeStarts };
-            velocityVariable.material.uniforms['edgeEnd'] = { value: dtEdgeEnds };
-            */
-
-            // edges.scale(0.1, 0.1, 0.1);
-            // edges.rotateY(Math.PI-0.5);
-            // edges.rotateX(0.3);
-            // edges.rotateZ(0.55);
-
-            const linesShown = 6000; 
-            let counter = linesShown;
-            edges.setDrawRange(0,linesShown);
-            const lines = new THREE.LineSegments(edges);
+            const linesShownIncrement = 100;
+			edges.setDrawRange(0,0);
+			lines = new THREE.LineSegments(edges);
             scene.add(lines);
             const numEdges = edges.attributes.position.count;
+			let i = 1;
             setInterval(() => {
-                counter = counter >= numEdges ? 0 + counter%numEdges : counter;
-                edges.setDrawRange(counter,linesShown);
-                counter += linesShown;
-            }, 150); // Fun line drawing stuff */ 
+                i = (linesShownIncrement*i < numEdges + 1000) ? ++i : 0;
+                edges.setDrawRange(0,linesShownIncrement * i);
+            }, 80); // Fun line drawing stuff */ 
         });
         
+
+		
         
 
         const error = gpuCompute.init(); // Initialising
@@ -211,7 +194,7 @@ const App = () => {
 
    
 
-    return (<div>
+    return (<div onMouseMove={(e) => { mouseMoved(e)}}>
             <div className='three-canvas' ref={mountRef}/>
             <div className='name'>under active construction</div>
         </div>); // Return div containing three canvas
