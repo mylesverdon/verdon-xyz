@@ -18,6 +18,8 @@ import fragment from "./shaders/fragment.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 
 const App = () => {
 	const mountRef = useRef<HTMLDivElement>(null);
@@ -62,6 +64,7 @@ const App = () => {
 		//new OrbitControls(camera, renderer.domElement);
 		// Set renderer size and add to react div
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio( window.devicePixelRatio );
 		mountRef.current.appendChild(renderer.domElement);
 
 		mountRef.current.style.touchAction = 'none';
@@ -166,7 +169,10 @@ const App = () => {
 
 		// Pos processing
 		const composer = new EffectComposer(renderer);
+
 		const renderPass = new RenderPass(scene, camera);
+		composer.addPass(renderPass);
+
 		const bloomPass = new UnrealBloomPass(
 			new THREE.Vector2(window.innerWidth, window.innerHeight),
 			1.5,
@@ -176,7 +182,6 @@ const App = () => {
 		bloomPass.threshold = bloomParams.bloomThreshold;
 		bloomPass.strength = bloomParams.bloomStrength;
 		bloomPass.radius = bloomParams.bloomRadius;
-		composer.addPass(renderPass);
 		composer.addPass(bloomPass);
 
 		let time = 0;
