@@ -52,11 +52,17 @@ export default function initGPUComputationRenderer(
 		velocityVariable,
 	]);
 
+
 	// Set up uniforms for each variable shader
 	positionVariable.material.uniforms["time"] = { value: 0 };
 	positionVariable.material.uniforms["delta"] = { value: 0 };
 	velocityVariable.material.uniforms["time"] = { value: 0 };
 	velocityVariable.material.uniforms["delta"] = { value: 0 };
+	
+	positionVariable.material.uniforms["edgeStartTexture"] = { value: 0 };
+	velocityVariable.material.uniforms["edgeStartTexture"] = { value: 0 };
+	positionVariable.material.uniforms["edgeEndTexture"] = { value: 0 };
+	velocityVariable.material.uniforms["edgeEndTexture"] = { value: 0 };
 
 	return { gpuCompute, positionVariable, velocityVariable };
 }

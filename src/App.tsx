@@ -19,7 +19,7 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 
 const App = () => {
 	const mountRef = useRef<HTMLDivElement>(null);
-	const WIDTH = 32;
+	const WIDTH = 64;
 
 	const bloomParams = {
 		exposure: 1,
@@ -31,7 +31,6 @@ const App = () => {
 	//const [ edgeData, setEdgeData ] = useState([]);
 
 	useLayoutEffect(() => {
-
 		if (!mountRef?.current) {
 			console.error("Mount ref not valid.");
 			return; // Ensure mount-ref is valid
@@ -45,38 +44,34 @@ const App = () => {
 			0.1,
 			1000
 		);
-		camera.position.z = 10; // Move camera back
+		camera.position.z = 100; // Move camera back
 		new OrbitControls(camera, renderer.domElement);
 
-        // // Add light to scene
-        // const light = new THREE.PointLight(0x00aaaa);
-		// const ambLight = new THREE.AmbientLight(0xff0000, 0.2);
-		// scene.add(light, ambLight);
-
-        
 		// Set renderer size and add to react div
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setPixelRatio(window.devicePixelRatio);
 		mountRef.current.appendChild(renderer.domElement);
 
-
-		const { gpuCompute, positionVariable, velocityVariable } = initGPUComputationRenderer(WIDTH, renderer);
-
+		const { gpuCompute, positionVariable, velocityVariable } =
+			initGPUComputationRenderer(WIDTH, renderer);
 
 		// Load object(s)
 		edgeExtraction(hand).then((edges) => {
-			const startData = new Float32Array(WIDTH * WIDTH * 3);
-			const endData = new Float32Array(WIDTH * WIDTH * 3);
 
 			let edgeData = edges.attributes.position.array;
 			let count = edgeData.length;
 
-			for (let i = 0; i < count / 6; i += 6) {
+			const dtEdgeStarts = gpuCompute.createTexture();
+			const dtEdgeEnds = gpuCompute.createTexture();
 
+			const startData = dtEdgeStarts.image.data;
+			const endData = dtEdgeEnds.image.data;
+
+			for (let i = 0; i < count; i += 6) {
 				// Divide/increment by 8 because 2 in a pair and 4 in a vertex
 				const j = (i / 6) * 4;
-				
-                startData[j] = edgeData[i];
+
+				startData[j] = edgeData[i];
 				startData[j + 1] = edgeData[i + 1];
 				startData[j + 2] = edgeData[i + 2];
 				startData[j + 3] = 1;
@@ -85,41 +80,17 @@ const App = () => {
 				endData[j + 1] = edgeData[i + 4];
 				endData[j + 2] = edgeData[i + 5];
 				endData[j + 3] = 1;
+			}
 			
-            }
+			dtEdgeStarts.image.data.set(startData);
+			dtEdgeEnds.image.data.set(endData);
+			dtEdgeStarts.needsUpdate = true;
+			dtEdgeEnds.needsUpdate = true;
 
-            // // Temp
-            // let handGeom = new THREE.BufferGeometry();
-            // handGeom.setAttribute('position', new THREE.Float32BufferAttribute(startData, 4));
+			velocityVariable.material.uniforms['edgeStartTexture'] = { value: dtEdgeStarts };
+			velocityVariable.material.uniformsNeedUpdate = true;
 
-            // let handPoints = new THREE.Points(
-            //     handGeom,
-            //     new THREE.PointsMaterial( {color: 0xFFFFFF} )
-            // );
-            // scene.add(handPoints);
 
-			const dtEdgeStarts = new THREE.DataTexture(
-				startData,
-				WIDTH,
-				WIDTH,
-				THREE.Format,
-				THREE.FloatType
-			);
-
-			const dtEdgeEnds = new THREE.DataTexture(endData, WIDTH, WIDTH);
-
-			positionVariable.material.uniforms["edgeStart"] = {
-				value: dtEdgeStarts,
-			};
-			positionVariable.material.uniforms["edgeEnd"] = {
-				value: dtEdgeEnds,
-			};
-			velocityVariable.material.uniforms["edgeStart"] = {
-				value: dtEdgeStarts,
-			};
-			velocityVariable.material.uniforms["edgeEnd"] = {
-				value: dtEdgeEnds,
-			};
 		});
 
 		const error = gpuCompute.init(); // Initialising
@@ -197,8 +168,8 @@ const App = () => {
 		// Handle window resize
 		let onWindowResize = function () {
 			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			camera.updateProjectionMatrix();
 		};
 		window.addEventListener("resize", onWindowResize, false);
 
