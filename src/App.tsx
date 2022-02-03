@@ -56,6 +56,7 @@ const App = () => {
         
 		// Set renderer size and add to react div
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio( window.devicePixelRatio );
 		mountRef.current.appendChild(renderer.domElement);
 
 
