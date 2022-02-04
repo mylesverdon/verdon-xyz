@@ -8,7 +8,7 @@ import edgeExtraction from "./models/EdgeExtraction";
 import initGPUComputationRenderer from "./modules/InitGPUComputationRenderer";
 
 /* @ts-ignore */
-import hand from "./models/hand.obj";
+import hand from "./models/hand_v2.obj";
 import vertex from "./shaders/vertex.js";
 import fragment from "./shaders/fragment.js";
 
@@ -19,7 +19,7 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 
 const App = () => {
 	const mountRef = useRef<HTMLDivElement>(null);
-	const WIDTH = 64;
+	const WIDTH = 256;
 
 	const bloomParams = {
 		exposure: 1,
@@ -28,7 +28,7 @@ const App = () => {
 		bloomRadius: 1,
 	};
 
-	//const [ edgeData, setEdgeData ] = useState([]);
+
 
 	useLayoutEffect(() => {
 		if (!mountRef?.current) {
@@ -44,7 +44,7 @@ const App = () => {
 			0.1,
 			1000
 		);
-		camera.position.z = 100; // Move camera back
+		camera.position.z = -10; // Move camera back
 		new OrbitControls(camera, renderer.domElement);
 
 		// Set renderer size and add to react div
@@ -56,9 +56,9 @@ const App = () => {
 			initGPUComputationRenderer(WIDTH, renderer);
 
 		// Load object(s)
-		edgeExtraction(hand).then((edges) => {
-
-			let edgeData = edges.attributes.position.array;
+		let edgeGeom: THREE.BufferGeometry;
+		const setVertexTextures = (geometry: THREE.BufferGeometry) => {
+			let edgeData = geometry.attributes.position.array;
 			let count = edgeData.length;
 
 			const dtEdgeStarts = gpuCompute.createTexture();
@@ -67,19 +67,18 @@ const App = () => {
 			const startData = dtEdgeStarts.image.data;
 			const endData = dtEdgeEnds.image.data;
 
-			for (let i = 0; i < count; i += 6) {
-				// Divide/increment by 8 because 2 in a pair and 4 in a vertex
-				const j = (i / 6) * 4;
+			for ( let i = 0; i < startData.length; i+=4) {
+				const j = ((6*i) / 4) % count;
 
-				startData[j] = edgeData[i];
-				startData[j + 1] = edgeData[i + 1];
-				startData[j + 2] = edgeData[i + 2];
-				startData[j + 3] = 1;
+				startData[i] = edgeData[j];
+				startData[i+1] = edgeData[j+1];
+				startData[i+2] = edgeData[j+2];
+				startData[i+3] = 1;
 
-				endData[j] = edgeData[i + 3];
-				endData[j + 1] = edgeData[i + 4];
-				endData[j + 2] = edgeData[i + 5];
-				endData[j + 3] = 1;
+				endData[i] = edgeData[j+3];
+				endData[i+1] = edgeData[j+4];
+				endData[i+2] = edgeData[j+5];
+				endData[i+3] = 1;
 			}
 			
 			dtEdgeStarts.image.data.set(startData);
@@ -88,9 +87,15 @@ const App = () => {
 			dtEdgeEnds.needsUpdate = true;
 
 			velocityVariable.material.uniforms['edgeStartTexture'] = { value: dtEdgeStarts };
+			velocityVariable.material.uniforms['edgeEndTexture'] = { value: dtEdgeEnds };
+			positionVariable.material.uniforms['edgeStartTexture'] = { value: dtEdgeStarts };
+			positionVariable.material.uniforms['edgeEndTexture'] = { value: dtEdgeEnds };
 			velocityVariable.material.uniformsNeedUpdate = true;
+		};
 
-
+		edgeExtraction(hand).then((edges) => {
+			edgeGeom = edges;
+			setVertexTextures(edgeGeom);
 		});
 
 		const error = gpuCompute.init(); // Initialising
@@ -147,6 +152,12 @@ const App = () => {
 			let delta = (now - last) / 1000;
 			if (delta > 1) delta = 1; // safety cap on large deltas
 			last = now;
+
+			// if(edgeGeom) {
+			// 	edgeGeom.rotateY(0.005);
+			// 	edgeGeom.rotateZ(0.005);
+			// 	setVertexTextures(edgeGeom);
+			// }
 
 			velocityVariable.material.uniforms.time = { value: now };
 			positionVariable.material.uniforms.time = { value: now };

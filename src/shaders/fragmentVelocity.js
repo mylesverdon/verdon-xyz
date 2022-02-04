@@ -19,17 +19,22 @@ void main()	{
     vec3 position = texture2D( positionTexture, uv ).xyz;
     vec3 velocity = texture2D( velocityTexture, uv ).xyz;
 
-    vec3 targetPos = texture2D( edgeStartTexture, uv).xyz;
+    vec3 targetStart = texture2D( edgeStartTexture, uv).xyz;
+    vec3 targetEnd = texture2D( edgeEndTexture, uv).xyz;
+
+    float interpolatedPosition = 0.5*(sin(time*rand(vec2(delta,time)*uv))+1.);
+    vec3 targetPos = targetStart*interpolatedPosition + targetEnd*(1.-interpolatedPosition);
+
     float targetDist = distance(targetPos,position);
 
-    float approachSpeed = targetDist - distance(targetPos, (position + velocity));
-    velocity += (targetPos - position);
+    float approachSpeed = 0.;
+    float nextDistance = distance(targetPos, (position + velocity));
 
-    //velocity *= approachSpeed*0.0001;
-
-    if ( length(velocity) > 2.) {
-        velocity = normalize(velocity)*2.;
+    if (nextDistance != 0.) {
+        approachSpeed = targetDist / nextDistance;
     }
+    velocity += (targetPos - position)*0.05;
+    velocity -= velocity*(approachSpeed/50.);
 
     gl_FragColor = vec4(velocity, 1.);
 
