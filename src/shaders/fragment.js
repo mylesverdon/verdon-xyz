@@ -1,4 +1,4 @@
-export default 
+export default
 `
 
 uniform float time;
@@ -11,7 +11,7 @@ varying vec3 vPosition;
 
 void main()
 {
-    gl_FragColor = vec4(vUv, 1., 1.0);
+    gl_FragColor = vec4(1., 1., 1., 1.);
 } 
 
 

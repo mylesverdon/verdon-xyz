@@ -22,16 +22,16 @@ void main()	{
     vec3 targetStart = texture2D( edgeStartTexture, uv).xyz;
     vec3 targetEnd = texture2D( edgeEndTexture, uv).xyz;
 
-    float interpolatedPosition = 0.5*(sin(time*rand(vec2(delta,time)*uv))+1.);
-    vec3 targetPos = targetStart*interpolatedPosition + targetEnd*(1.-interpolatedPosition);
-
-    float targetDist = distance(targetPos,position);
+    float interpolatedPosition = (sin(0.01*time*rand(uv))+1.)/2.;
+    vec3 targetPos = targetStart + (targetEnd - targetStart)*interpolatedPosition;
 
     float approachSpeed = 0.;
+    float targetDist = distance(targetPos,position);
     float nextDistance = distance(targetPos, (position + velocity));
 
     if (nextDistance != 0.) {
-        approachSpeed = targetDist / nextDistance;
+        approachSpeed = min(2.,targetDist / nextDistance);
+    
     }
     velocity += (targetPos - position)*0.05;
     velocity -= velocity*(approachSpeed/50.);
